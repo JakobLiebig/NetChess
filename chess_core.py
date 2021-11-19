@@ -3,18 +3,6 @@ import copy
 from typing import ValuesView
     
 class Move:
-    def fromString(fromStr, toStr):
-        fromX = ord(fromStr[0]) - ord("a")
-        fromY = ord(fromStr[1]) - ord("1")
-        from_ = fromX + fromY * 8
-        
-        toX = ord(toStr[0]) - ord("a")
-        toY = ord(toStr[1]) - ord("1")
-        to_ = toX + toY * 8
-        
-        return Move(from_, to_)
-        
-    
     def __init__(self, fromIndex: int, toIndex: int):
         self.__from = fromIndex
         self.__to = toIndex
@@ -22,11 +10,13 @@ class Move:
     def __eq__(self, other):
         return self.__from == other.__from and self.__to == other.__to
     
+    
     def getFrom(self):
         return self.__from
 
     def getTo(self):
         return self.__to
+    
     
     def leavesBoardBoundaries(self):
         return self.__from >= 64 or self.__from < 0 or self.__to >= 64 or self.__to < 0
@@ -136,6 +126,7 @@ class Piece:
     def pawn(colour: Colour):
         return Piece(Piece.Type.PAWN, colour)
     
+    
     def __init__(self, type, colour):
         self.__type = type
         self.__colour = colour
@@ -144,53 +135,6 @@ class Piece:
     def __eq__(self, other: object):
         return self.__colour == other.__colour and other.__type == self.__type
     
-    def __str__(self):
-        if self.__type == Piece.Type.KING:
-            if self.__colour == Piece.Colour.WHITE:
-                return "♚"
-            else:
-                return "♔"
-        elif self.__type == Piece.Type.QUEEN:
-            if self.__colour == Piece.Colour.WHITE:
-                return "♛"
-            else:
-                return "♕"
-        elif self.__type == Piece.Type.BISHOP:
-            if self.__colour == Piece.Colour.WHITE:
-                return "♝"
-            else:
-                return "♗"
-        elif self.__type == Piece.Type.KNIGHT:
-            if self.__colour == Piece.Colour.WHITE:
-                return "♞"
-            else:
-                return "♘"
-        elif self.__type == Piece.Type.ROOK:
-            if self.__colour == Piece.Colour.WHITE:
-                return "♜"
-            else:
-                return "♖"
-        elif self.__type == Piece.Type.PAWN:
-            if self.__colour == Piece.Colour.WHITE:
-                return "♟︎"
-            else:
-                return "♙"
-        else:
-            return "."
-    
-    def generatePseudoLegalMoves(self, startingField, pseudoLegalMoves, board):
-        if self.__type == Piece.Type.KING:
-            self.__generateKingMoves(startingField, pseudoLegalMoves, board)
-        elif self.__type == Piece.Type.QUEEN:
-            self.__generateQueenMoves(startingField, pseudoLegalMoves, board)
-        elif self.__type == Piece.Type.BISHOP:
-            self.__generateBishopMoves(startingField, pseudoLegalMoves, board)
-        elif self.__type == Piece.Type.KNIGHT:
-            self.__generateKnightMoves(startingField, pseudoLegalMoves, board)
-        elif self.__type == Piece.Type.ROOK:
-            self.__generateRookMoves(startingField, pseudoLegalMoves, board)
-        elif self.__type == Piece.Type.PAWN:
-            self.__generatePawnMoves(startingField, pseudoLegalMoves, board)
                 
     def incrementStepsTaken(self):
         self.__stepsTaken += 1
@@ -206,6 +150,21 @@ class Piece:
     
     def getStepsTaken(self):
         return self.__stepsTaken
+    
+    
+    def generatePseudoLegalMoves(self, startingField, pseudoLegalMoves, board):
+        if self.__type == Piece.Type.KING:
+            self.__generateKingMoves(startingField, pseudoLegalMoves, board)
+        elif self.__type == Piece.Type.QUEEN:
+            self.__generateQueenMoves(startingField, pseudoLegalMoves, board)
+        elif self.__type == Piece.Type.BISHOP:
+            self.__generateBishopMoves(startingField, pseudoLegalMoves, board)
+        elif self.__type == Piece.Type.KNIGHT:
+            self.__generateKnightMoves(startingField, pseudoLegalMoves, board)
+        elif self.__type == Piece.Type.ROOK:
+            self.__generateRookMoves(startingField, pseudoLegalMoves, board)
+        elif self.__type == Piece.Type.PAWN:
+            self.__generatePawnMoves(startingField, pseudoLegalMoves, board)
     
     def __continueGenerateingSlidingMoves(self, firstMove, pseudoLegalMoves, board):
         firstMoveDirection = firstMove.getTo() - firstMove.getFrom()
@@ -283,7 +242,6 @@ class Piece:
             curMove = Move(startingField, startingField + moveDirections[moveIndex])
                     
             self.__continueGenerateingSlidingMoves(curMove, pseudoLegalMoves, board)
-    
     
     def __generateKnightMoves(self, startingField, pseudoLegalMoves, board):
         moveDirections = [6, -6, 10, -10, 15, -15, 17, -17]
@@ -380,7 +338,7 @@ class Board:
     def basicSetup():
         boardPieces = [Piece.empty()] * 64
         
-        # place top pieces
+        # place top Pieces
         boardPieces[0] = Piece.rook(Board.playerTop)
         boardPieces[1] = Piece.knight(Board.playerTop)
         boardPieces[2] = Piece.bishop(Board.playerTop)
@@ -399,7 +357,7 @@ class Board:
         boardPieces[14] = Piece.pawn(Board.playerTop)
         boardPieces[15] = Piece.pawn(Board.playerTop)
 
-        # place black pieces
+        # place black Pieces
         boardPieces[63 - 0] = Piece.rook(Board.playerBottom)
         boardPieces[63 - 1] = Piece.knight(Board.playerBottom)
         boardPieces[63 - 2] = Piece.bishop(Board.playerBottom)
@@ -420,28 +378,16 @@ class Board:
         
         return Board(boardPieces)
     
+    
     def __init__(self, boardPieces):
         self.__boardPieces = boardPieces
-
-    def __str__(self) -> str:
-        boardString = ""
-        
-        for y in range(8):
-            for x in range(8):
-                curIndex = x + y * 8
+    
+    
+    def getPieceAt(self, index):
+        return self.__boardPieces[index]
+    
                 
-                curPiece = self.__boardPieces[curIndex]
-                curPieceString = str(curPiece)
-                
-                boardString += curPieceString
-            boardString += "\n"
-        
-        return boardString
-                
-
     def movePiece(self, move):
-        capturedPoints = 0
-        
         nextStateBoardPieces = copy.deepcopy(self.__boardPieces)
         
         activePiece = nextStateBoardPieces[move.getFrom()]
@@ -481,16 +427,31 @@ class Board:
         
         return Board(nextStateBoardPieces)
     
-    def generatePseudoLegalMoves(self, activePlayer):
+        
+    def generateLegalMoves(self, activePlayer):
+        pseudoLegalMoves = self.__generatePseudoLegalMoves(self.__activePlayer)
+        legalMoves = []
+        
+        for pseudoLegalMove in pseudoLegalMoves:
+            nextState = self.movePiece(pseudoLegalMove)
+            nextStatePseudoLegalMoves = nextState.__generatePseudoLegalMoves(self.__activePlayer)
+            
+            if not nextState.isKingUnderAttack(self.__activePlayer, nextStatePseudoLegalMoves):
+                legalMoves.append(pseudoLegalMove)
+        
+        return legalMoves
+
+    def __generatePseudoLegalMoves(self, activePlayer):
         pseudoLegalMoves = []
         
         for pieceIndex in range(64):
-            piece = self.__boardPieces[pieceIndex]
+            Piece = self.__boardPieces[pieceIndex]
             
-            if piece.getColour() == activePlayer:
-                piece.generatePseudoLegalMoves(pieceIndex, pseudoLegalMoves, self)
+            if Piece.getColour() == activePlayer:
+                Piece.generatePseudoLegalMoves(pieceIndex, pseudoLegalMoves, self)
         
         return pseudoLegalMoves
+    
     
     def isCastlingPossible(self, moveToRook):
         rook = self.getPieceAt(moveToRook.getTo())
@@ -517,56 +478,3 @@ class Board:
                 return True
         
         return False
-    
-    def getPieceAt(self, index):
-        return self.__boardPieces[index]    
-    
-class Game:
-    def __init__(self):
-        self.__activePlayer = Piece.Colour.WHITE
-        self.__board = Board.basicSetup()
-        self.__currentStateLegalMoves = self.__board.generatePseudoLegalMoves(self.__activePlayer)
-    
-    def movePiece(self, move):
-        if not self.isLegalMove(move):
-            raise ValueError("Not a legal Move!")
-        
-        self.__board = self.__board.movePiece(move)
-        
-        self.__activePlayer = Piece.Colour.Opponent(self.__activePlayer)
-        
-        self.__currentStateLegalMoves = self.__generateLegalMoves()
-        
-        if len(self.__currentStateLegalMoves) == 0:
-            return True
-        else:
-            return False
-    
-    def isLegalMove(self, move):
-        return move in self.__currentStateLegalMoves
-    
-    def reset(self):
-        self.__activePlayer = Piece.Colour.WHITE
-        self.__board = Board.basicSetup()
-    
-    def getBoard(self):
-        return self.__board
-    
-    def getActivePlayer(self):
-        return self.__activePlayer
-    
-    def getLegalMoves(self):
-        return self.__currentStateLegalMoves
-    
-    def __generateLegalMoves(self):
-        pseudoLegalMoves = self.__board.generatePseudoLegalMoves(self.__activePlayer)
-        legalMoves = []
-        
-        for pseudoLegalMove in pseudoLegalMoves:
-            nextState = self.__board.movePiece(pseudoLegalMove)
-            nextStatePseudoLegalMoves = nextState.generatePseudoLegalMoves(self.__activePlayer)
-            
-            if not nextState.isKingUnderAttack(self.__activePlayer, nextStatePseudoLegalMoves):
-                legalMoves.append(pseudoLegalMove)
-        
-        return legalMoves
