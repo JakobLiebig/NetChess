@@ -6,9 +6,6 @@ import multiprocessing.connection
 class ChessClient:
     def __init__(self, host, port):
         self.__client = multiprocessing.connection.Client((host, port))
-
-    def __del__(self):
-        self.__client.close()
             
     def send(self, move):
         self.__client.send(move)
@@ -18,15 +15,14 @@ class ChessClient:
         
         return move
 
+    def close(self):
+        self.__client.close()
+
 class ChessServer:
     def __init__(self, host, port):
         self.__listener = multiprocessing.connection.Listener((host, port))
         self.__connection = None
 
-    def __del__(self):
-        self.__connection.close()
-        self.__listener.close()
-    
     def waitForClient(self):
         self.__connection = self.__listener.accept()
     
@@ -37,3 +33,7 @@ class ChessServer:
         move = self.__connection.recv()
         
         return move
+    
+    def close(self):
+        self.__connection.close()
+        self.__listener.close()

@@ -2,9 +2,19 @@ import interface
 
 inter = interface.Interface()
 
-inter.setup()
+while True:
+    try:
+        inter.setup()
+        break
+    except Exception as ex:
+        print("Setup failed!", ex)
 
-if inter.startGame():
-    print("You win!")
-else:
-    print("You loose!")
+try:
+    if inter.startGame():
+        print("You win!")
+    else:
+        print("You loose!")
+except EOFError:
+    print("Error: Connection lost!")
+
+inter.cleanup()
