@@ -1,8 +1,8 @@
 import random
 import multiprocessing.connection 
 
-import chess.core as core
-import chess.game as game
+import chess_core
+import chess_game
 
 class Session:
     class ChessClient:
@@ -47,9 +47,9 @@ class Session:
         server.waitForClient()
         
         # assign colours
-        playerColour = random.choice([core.Piece.Colour.WHITE,
-                                      core.Piece.Colour.BLACK])
-        opponentColour = core.Piece.Colour.Opponent(playerColour)
+        playerColour = random.choice([chess_core.Piece.Colour.WHITE,
+                                      chess_core.Piece.Colour.BLACK])
+        opponentColour = chess_core.Piece.Colour.Opponent(playerColour)
         
         server.send(opponentColour)
         
@@ -63,7 +63,7 @@ class Session:
         return Session(client, playerColour)
     
     def __init__(self, connection, playerColour):
-        self.__game = game.Game()
+        self.__game = chess_game.Game()
         self.__connection = connection
         self.__playerColour = playerColour
     

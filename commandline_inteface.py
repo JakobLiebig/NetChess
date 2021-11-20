@@ -1,31 +1,20 @@
 import time
 from typing import Text
 
-import chess.core as chess_core
-import chess.session as chess_session
+import chess_core
+import chess_session
 
 class CommandlineInterface:
-    class TextColour:
-        PURPLE = '\033[95m'
-        CYAN = '\033[96m'
-        DARKCYAN = '\033[36m'
-        BLUE = '\033[94m'
-        GREEN = '\033[92m'
-        YELLOW = '\033[93m'
-        RED = '\033[91m'
-        BOLD = '\033[1m'
-        UNDERLINE = '\033[4m'
-        END = '\033[0m'
-            
     def start(self):
         print("Welcome to...")
         CommandlineInterface.__displayBanner()
         
         self.__session = CommandlineInterface.__setupSessionDialog()
 
-        print(CommandlineInterface.TextColour.GREEN, "\nConnected!", CommandlineInterface.TextColour.END)
-        print(CommandlineInterface.TextColour.BOLD, f"You play {self.__encodeMyColour()}!", CommandlineInterface.TextColour.END)
-        print(CommandlineInterface.TextColour.BOLD, "Please Enter Moves like this: <from> <to> (e.g. 'a2 c4')", CommandlineInterface.TextColour.END)      
+        CommandlineInterface.__printGreen("\nConnected!")
+        CommandlineInterface.__printBold(f"You play {self.__encodeMyColour()}!")
+        CommandlineInterface.__printBold("Please Enter Moves like this: <from> <to> (e.g. 'a2 c4')")   
+        
         print("Game starts in 10 seconds!")
         time.sleep(10)
         
@@ -35,7 +24,7 @@ class CommandlineInterface:
             self.__endDialog(winner)
         
         except Exception as ex:
-                print(CommandlineInterface.TextColour.RED, "Terminated Game! Error: ", str(ex), CommandlineInterface.TextColour.END)
+                CommandlineInterface.__printRed(f"Terminated Game! Error: '{str(ex)}'")
         finally:
             self.__session.cleanUp()
             
@@ -48,7 +37,7 @@ class CommandlineInterface:
                 print("Waiting for Opponent...")
                 return chess_session.Session.host(host, port)
             except Exception as ex:
-                print(CommandlineInterface.TextColour.RED, "Error! ", str(ex), CommandlineInterface.TextColour.END)
+                CommandlineInterface.__printRed(f"Error! '{str(ex)}'")
     
     def __setupClientDialog():
         while True:
@@ -59,12 +48,12 @@ class CommandlineInterface:
                 print(f"Connecting to {host}:{port}...")
                 return chess_session.Session.connect(host, port)
             except Exception as ex:
-                print(CommandlineInterface.TextColour.RED, "Error! ", str(ex), CommandlineInterface.TextColour.END)
-    
+                CommandlineInterface.__printRed(f"Error! '{str(ex)}'")
+              
     def __setupSessionDialog():
         while True:
             try:
-                print("Please type 0 to host a session or 1 to join one!")
+                print("Type 0 to host a session or 1 to join one!")
                 command = input(">")
                 
                 if command == "0":
@@ -74,7 +63,7 @@ class CommandlineInterface:
                 else:
                     raise ValueError("Input has to be either 0 or 1!")
             except Exception as ex:
-                print(CommandlineInterface.TextColour.RED, "Error! ", str(ex), CommandlineInterface.TextColour.END)
+                CommandlineInterface.__printRed(f"Error! '{str(ex)}'")
     
     def __getMoveDialog(self):
         while True:
@@ -90,13 +79,26 @@ class CommandlineInterface:
                 
                 return move
             except Exception as ex:
-                print(CommandlineInterface.TextColour.RED, "Error! ", str(ex), CommandlineInterface.TextColour.END)
-            
+                CommandlineInterface.__printRed(f"Error! '{str(ex)}'")
+    
     def __endDialog(self, winner):
         if winner == self.__session.getMyColour():
-            print(CommandlineInterface.TextColour.GREEN, "Game over! You win!", CommandlineInterface.TextColour.END)
+            CommandlineInterface.__printGreen("Game over! You win!")
         else:
-            print(CommandlineInterface.TextColour.RED, "Game over! You loose!", CommandlineInterface.TextColour.END)
+            CommandlineInterface.__printRed("Game over! You loose!")
+    
+    
+    def __printGreen(x):
+        print(f"\033[92m{x}\033[0m")
+    
+    def __printRed(x):
+        print(f"\033[91m{x}\033[0m")
+    
+    def __printPurple(x):
+        print(f"\033[95m{x}\033[0m")
+    
+    def __printBold(x):
+        print(f"\033[1m{x}\033[0m")
     
     
     def __moveFromString(fromStr, toStr):
@@ -170,12 +172,13 @@ class CommandlineInterface:
         print(chr(27) + "[2J")
     
     def __displayBanner():
-        print(CommandlineInterface.TextColour.PURPLE, """ _______          __   _________ .__                         ._._.
+        
+        CommandlineInterface.__printPurple(""" _______          __   _________ .__                         ._._.
  \      \   _____/  |_ \_   ___ \|  |__   ____   ______ _____| | |
  /   |   \_/ __ \   __\/    \  \/|  |  \_/ __ \ /  ___//  ___/ | |
 /    |    \  ___/|  |  \     \___|   Y  \  ___/ \___ \ \___ \ \|\|
 \____|__  /\___  >__|   \______  /___|  /\___  >____  >____  >____
-        \/     \/              \/     \/     \/     \/     \/ \/\/""", CommandlineInterface.TextColour.END)
+        \/     \/              \/     \/     \/     \/     \/ \/\/""")
 
     def __encodeMyColour(self):
         myColour = self.__session.getMyColour()

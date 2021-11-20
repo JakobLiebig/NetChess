@@ -1,4 +1,4 @@
-import interface.commandline as commandline
+import commandline_inteface as commandline
 
 interface = commandline.CommandlineInterface()
 interface.start()
