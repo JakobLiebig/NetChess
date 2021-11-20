@@ -1,7 +1,7 @@
 from enum import Enum
 import copy
-from typing import ValuesView
-    
+import math
+
 class Move:
     def __init__(self, fromIndex: int, toIndex: int):
         self.__from = fromIndex
@@ -154,7 +154,7 @@ class Piece:
     
     def generatePseudoLegalMoves(self, startingField, pseudoLegalMoves, board):
         if self.__type == Piece.Type.KING:
-            self.__generateKingMoves(startingField, pseudoLegalMoves, board)
+            self.__generateKingMoves(startingField, pseudoLegalMoves, board) # 
         elif self.__type == Piece.Type.QUEEN:
             self.__generateQueenMoves(startingField, pseudoLegalMoves, board)
         elif self.__type == Piece.Type.BISHOP:
@@ -164,7 +164,7 @@ class Piece:
         elif self.__type == Piece.Type.ROOK:
             self.__generateRookMoves(startingField, pseudoLegalMoves, board)
         elif self.__type == Piece.Type.PAWN:
-            self.__generatePawnMoves(startingField, pseudoLegalMoves, board)
+            self.__generatePawnMoves(startingField, pseudoLegalMoves, board) # 
     
     def __continueGenerateingSlidingMoves(self, firstMove, pseudoLegalMoves, board):
         firstMoveDirection = firstMove.getTo() - firstMove.getFrom()
@@ -300,7 +300,7 @@ class Piece:
             if self.__stepsTaken == 0:
                 
                 pieceTwoAhead = board.getPieceAt(doubleOppening.getTo())
-                if pieceOneAhead.getType() == Piece.Type.EMPTY:
+                if pieceTwoAhead.getType() == Piece.Type.EMPTY:
                     pseudoLegalMoves.append(doubleOppening)
         
         
@@ -429,14 +429,16 @@ class Board:
     
         
     def generateLegalMoves(self, activePlayer):
-        pseudoLegalMoves = self.__generatePseudoLegalMoves(self.__activePlayer)
+        activePlayerOpponent = Piece.Colour.Opponent(activePlayer)
+        
+        pseudoLegalMoves = self.__generatePseudoLegalMoves(activePlayer)
         legalMoves = []
         
         for pseudoLegalMove in pseudoLegalMoves:
             nextState = self.movePiece(pseudoLegalMove)
-            nextStatePseudoLegalMoves = nextState.__generatePseudoLegalMoves(self.__activePlayer)
+            nextStateOpponentPseudoLegalMoves = nextState.__generatePseudoLegalMoves(activePlayerOpponent)
             
-            if not nextState.isKingUnderAttack(self.__activePlayer, nextStatePseudoLegalMoves):
+            if not nextState.isKingUnderAttack(activePlayer, nextStateOpponentPseudoLegalMoves):
                 legalMoves.append(pseudoLegalMove)
         
         return legalMoves
@@ -459,16 +461,13 @@ class Board:
         
         directionToRook = moveToRook.getTo() - moveToRook.getFrom()
         
-        if directionToRook >= 0:
-            singleStepTowardsRook = 1
-        else:
-            singleStepTowardsRook = -1
+        singleStepTowardsRook = int(math.copysign(1, directionToRook))
         
-        for i in range(moveToRook.getFrom() + singleStepTowardsRook, moveToRook.getTo()):
-            isCastlingPossible = self.__boardPieces[i].getType() == Piece.Type.EMPTY
-            
+        for i in range(moveToRook.getFrom() + singleStepTowardsRook, moveToRook.getTo(), directionToRook):
             if not isCastlingPossible:
                 break
+            
+            isCastlingPossible = self.__boardPieces[i].getType() == Piece.Type.EMPTY
         
         return isCastlingPossible
 

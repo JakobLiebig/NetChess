@@ -1,10 +1,10 @@
-import chess_core
+import chess.core as core
 
 class Game:
     def __init__(self):
-        self.__activePlayer = chess_core.Piece.Colour.WHITE
-        self.__board = chess_core.Board.basicSetup()
-        self.__currentStateLegalMoves = self.__board.generatePseudoLegalMoves(self.__activePlayer)
+        self.__activePlayer = core.Piece.Colour.WHITE
+        self.__board = core.Board.basicSetup()
+        self.__currentStateLegalMoves = self.__board.generateLegalMoves(self.__activePlayer)
     
     def movePiece(self, move):
         if not self.isLegalMove(move):
@@ -12,7 +12,7 @@ class Game:
         
         self.__board = self.__board.movePiece(move)
         
-        self.__activePlayer = chess_core.Piece.Colour.Opponent(self.__activePlayer)
+        self.__activePlayer = core.Piece.Colour.Opponent(self.__activePlayer)
         
         self.__currentStateLegalMoves = self.__board.generateLegalMoves(self.__activePlayer)
         
@@ -25,8 +25,8 @@ class Game:
         return move in self.__currentStateLegalMoves
     
     def reset(self):
-        self.__activePlayer = chess_core.Piece.Colour.WHITE
-        self.__board = chess_core.Board.basicSetup()
+        self.__activePlayer = core.Piece.Colour.WHITE
+        self.__board = core.Board.basicSetup()
     
     def getBoard(self):
         return self.__board
